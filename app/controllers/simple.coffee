@@ -11,18 +11,22 @@ App.EmberTableSimpleController = Ember.Controller.extend
       columnWidth: 100
       headerCellName: 'Open'
       getCellContent: (row) -> row.get('open').toFixed(2)
+      compareCellValues: (firstRow, secondRow) -> firstRow.open - secondRow.open
     highColumn = Ember.Table.ColumnDefinition.create
       columnWidth: 100
       headerCellName: 'High'
       getCellContent: (row) -> row.get('high').toFixed(2)
+      compareCellValues: (firstRow, secondRow) -> firstRow.high - secondRow.high
     lowColumn = Ember.Table.ColumnDefinition.create
       columnWidth: 100
       headerCellName: 'Low'
       getCellContent: (row) -> row.get('low').toFixed(2)
+      compareCellValues: (firstRow, secondRow) -> firstRow.low - secondRow.low
     closeColumn = Ember.Table.ColumnDefinition.create
       columnWidth: 100
       headerCellName: 'Close'
       getCellContent: (row) -> row.get('close').toFixed(2)
+      compareCellValues: (firstRow, secondRow) -> firstRow.close - secondRow.close
     [dateColumn, openColumn, highColumn, lowColumn, closeColumn]
 
   content: Ember.computed ->

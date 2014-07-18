@@ -47,6 +47,15 @@ Ember.Table.ColumnDefinition = Ember.Object.extend
     Ember.get row, path
 
   ###*
+  * Compare Cell Values - Compare the value of two cells, used for sorting
+  * @memberof Ember.Table.ColumnDefinition
+  * @instance
+  * @argument firstRow {Ember.Table.Row}
+  * @argument secondRow {Ember.Table.Row}
+  ###
+  compareCellValues: null 
+
+  ###*
   * Set Cell Content
   * @memberof Ember.Table.ColumnDefinition
   * @instance

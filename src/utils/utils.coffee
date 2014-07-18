@@ -94,3 +94,44 @@ Ember.Table.ShowHorizontalScrollMixin = Ember.Mixin.create
     $tablesContainer = $(event.target).parents('.ember-table-tables-container')
     $horizontalScroll = $tablesContainer.find('.antiscroll-scrollbar-horizontal')
     $horizontalScroll.removeClass('antiscroll-scrollbar-shown')
+
+# A mixin to enable soring in ember tables by clicking on the header of columns
+# The user can define a compare values method for each column to determine how the values are sorted
+Ember.Table.SimpleSortMixin = Ember.Mixin.create 
+  sortColumn : null
+  descending : false
+  enableSorting : true
+
+  performSort: (-> 
+    $sortColumn = @get('sortColumn')
+    return unless @sortColumn
+    return unless $sortColumn.compareCellValues
+    $content = @get('content')
+    $descending = @get('descending')
+    $newContent = $content.sort (a,b) ->
+        if ($descending)
+            $sortColumn.compareCellValues b,a
+        else
+            $sortColumn.compareCellValues a,b
+    $newContent = $newContent.slice 0
+    @set('content', $newContent)
+    return
+  ).observes('sortColumn', 'descending')
+
+  toggleDescending : ->
+    $descending = @get('descending')
+    @set('descending', !$descending)
+    return
+
+  actions:
+    sortByColumn : (column) ->
+        return if !@get 'enableSorting'
+        $currentColumn = @get('sortColumn')
+        $sameColumn = column == $currentColumn
+        if $sameColumn
+            @toggleDescending() 
+        else
+            @set('descending', false)
+            @set('sortColumn', column)
+        return
+
