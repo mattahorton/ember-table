@@ -135,11 +135,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 
 
   data.buffer.push("<div class=\"ember-table-content-container\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "sortByColumn", "view.content", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["ID","ID"],data:data})));
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "sortByColumn", "view.content", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","ID"],data:data})));
   data.buffer.push(">\n  <span class=\"ember-table-content\">\n    ");
   stack1 = helpers._triageMustache.call(depth0, "view.content.headerCellName", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n  </span>\n</div>");
+  data.buffer.push("\n  </span>\n</div>\n");
   return buffer;
   
 });
@@ -643,6 +643,54 @@ Ember.Table.ShowHorizontalScrollMixin = Ember.Mixin.create({
   }
 });
 
+Ember.Table.SimpleSortMixin = Ember.Mixin.create({
+  sortColumn: null,
+  descending: false,
+  enableSorting: true,
+  performSort: (function() {
+    var $content, $descending, $newContent, $sortColumn;
+    $sortColumn = this.get('sortColumn');
+    if (!this.sortColumn) {
+      return;
+    }
+    if (!$sortColumn.compareCellValues) {
+      return;
+    }
+    $content = this.get('content');
+    $descending = this.get('descending');
+    $newContent = $content.sort(function(a, b) {
+      if ($descending) {
+        return $sortColumn.compareCellValues(b, a);
+      } else {
+        return $sortColumn.compareCellValues(a, b);
+      }
+    });
+    $newContent = $newContent.slice(0);
+    this.set('content', $newContent);
+  }).observes('sortColumn', 'descending'),
+  toggleDescending: function() {
+    var $descending;
+    $descending = this.get('descending');
+    this.set('descending', !$descending);
+  },
+  actions: {
+    sortByColumn: function(column) {
+      var $currentColumn, $sameColumn;
+      if (!this.get('enableSorting')) {
+        return;
+      }
+      $currentColumn = this.get('sortColumn');
+      $sameColumn = column === $currentColumn;
+      if ($sameColumn) {
+        this.toggleDescending();
+      } else {
+        this.set('descending', false);
+        this.set('sortColumn', column);
+      }
+    }
+  }
+});
+
 
 })();
 (function() {
@@ -683,6 +731,15 @@ Ember.Table.ColumnDefinition = Ember.Object.extend({
     Ember.assert("You must either provide a contentPath or override " + "getCellContent in your column definition", path != null);
     return Ember.get(row, path);
   },
+  /**
+  * Compare Cell Values - Compare the value of two cells, used for sorting
+  * @memberof Ember.Table.ColumnDefinition
+  * @instance
+  * @argument firstRow {Ember.Table.Row}
+  * @argument secondRow {Ember.Table.Row}
+  */
+
+  compareCellValues: null,
   /**
   * Set Cell Content
   * @memberof Ember.Table.ColumnDefinition
@@ -1304,7 +1361,7 @@ Ember.Table.ScrollPanel = Ember.View.extend(Ember.AddeparMixins.StyleBindingsMix
 * @alias Ember.Table.EmberTableComponent
 */
 
-Ember.Table.EmberTableComponent = Ember.Component.extend(Ember.AddeparMixins.StyleBindingsMixin, Ember.AddeparMixins.ResizeHandlerMixin, {
+Ember.Table.EmberTableComponent = Ember.Component.extend(Ember.AddeparMixins.StyleBindingsMixin, Ember.AddeparMixins.ResizeHandlerMixin, Ember.Table.SimpleSortMixin, {
   layoutName: 'components/ember-table',
   classNames: ['ember-table-tables-container'],
   classNameBindings: ['enableContentSelection:ember-table-content-selectable'],
@@ -1336,8 +1393,7 @@ Ember.Table.EmberTableComponent = Ember.Component.extend(Ember.AddeparMixins.Sty
     }
   },
   actions: {
-    addColumn: Ember.K,
-    sortByColumn: Ember.K
+    addColumn: Ember.K
   },
   onColumnSort: function(column, newIndex) {
     var columns;
