@@ -110,9 +110,9 @@ Ember.Table.SimpleSortMixin = Ember.Mixin.create
     $descending = @get('descending')
     $newContent = $content.sort (a,b) ->
         if ($descending)
-            $sortColumn.compareCellValues b,a, $sortColumn
+            $sortColumn.compareCellValues b,a
         else
-            $sortColumn.compareCellValues a,b, $sortColumn
+            $sortColumn.compareCellValues a,b
     $newContent = $newContent.slice 0
     @set('content', $newContent)
     return
