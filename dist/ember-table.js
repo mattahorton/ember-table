@@ -660,9 +660,9 @@ Ember.Table.SimpleSortMixin = Ember.Mixin.create({
     $descending = this.get('descending');
     $newContent = $content.sort(function(a, b) {
       if ($descending) {
-        return $sortColumn.compareCellValues(b, a);
+        return $sortColumn.compareCellValues(b, a, $sortColumn);
       } else {
-        return $sortColumn.compareCellValues(a, b);
+        return $sortColumn.compareCellValues(a, b, $sortColumn);
       }
     });
     $newContent = $newContent.slice(0);
